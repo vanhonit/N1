@@ -1,9 +1,11 @@
-import _ from 'underscore'
 import React from 'react';
 import moment from 'moment'
 import {RetinaImg} from 'nylas-component-kit'
-import EventDatetimeInput from './event-datetime-input'
 import {PLUGIN_ID} from './scheduler-constants'
+
+import ProposedTimeList from './proposed-time-list'
+import EventDatetimeInput from './event-datetime-input'
+
 import {
   Utils,
   Calendar,
@@ -138,48 +140,10 @@ export default class NewEventCard extends React.Component {
     });
   }
 
-  _renderProposalsForDay(proposalsForDay) {
-    return proposalsForDay.map((p) => {
-      return (
-        <div className="proposal" key={p.start}>
-          {moment.unix(p.start).format("LT")}
-          &nbsp;&mdash;&nbsp;
-          {moment.unix(p.end).add(1, 'second').format("LT")}
-        </div>
-      )
-    })
-  }
-
-  _renderProposals(proposals) {
-    const byDay = _.groupBy(proposals, (p) => {
-      return moment.unix(p.start).dayOfYear()
-    })
-    const renderedByDay = _.map(byDay, (ps, dayNum) => {
-      const header = moment().dayOfYear(dayNum).format("ddd, MMM D")
-      return (
-        <div className="proposal-day" key={dayNum}>
-          <div className="day-header">{header}</div>
-          <div className="proposals">
-            {this._renderProposalsForDay(ps)}
-          </div>
-        </div>
-      )
-    })
-    return (
-      <div className="row proposals">
-        {this._renderIcon("ic-eventcard-time@2x.png")}
-        <span>Proposed times:</span>
-        <div className="proposals-wrap">
-          {renderedByDay}
-        </div>
-      </div>
-    )
-  }
-
   _renderTimePicker() {
     const metadata = this.props.draft.metadataForPluginId(PLUGIN_ID);
     if (metadata && metadata.proposals) {
-      return this._renderProposals(metadata.proposals)
+      return <ProposedTimeList event={this.props.event} proposals={metadata.proposals} />
     }
     return (
       <div className="row time">

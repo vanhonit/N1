@@ -3,8 +3,12 @@ import ProposedTimeStore from './proposed-time-store'
 import ProposedTimePicker from './proposed-time-picker'
 import NewEventCardContainer from './new-event-card-container'
 import SchedulerComposerButton from './scheduler-composer-button';
+import SchedulerComposerExtension from './scheduler-composer-extension';
 
-import {ComponentRegistry, WorkspaceStore} from 'nylas-exports'
+import {
+  ComponentRegistry,
+  ExtensionRegistry,
+  WorkspaceStore} from 'nylas-exports'
 
 export function activate() {
   if (NylasEnv.getWindowType() === 'calendar') {
@@ -25,6 +29,8 @@ export function activate() {
 
     ComponentRegistry.register(SchedulerComposerButton,
       {role: 'Composer:ActionButton'});
+
+    ExtensionRegistry.Composer.register(SchedulerComposerExtension)
   }
 }
 
@@ -39,5 +45,6 @@ export function deactivate() {
   } else {
     ComponentRegistry.unregister(NewEventCardContainer);
     ComponentRegistry.unregister(SchedulerComposerButton);
+    ExtensionRegistry.Composer.unregister(SchedulerComposerExtension)
   }
 }
