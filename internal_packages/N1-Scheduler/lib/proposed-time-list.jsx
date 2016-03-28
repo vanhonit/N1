@@ -2,6 +2,7 @@ import _ from 'underscore'
 import moment from 'moment'
 import React from 'react'
 import {RetinaImg} from 'nylas-component-kit'
+import b64Imgs from './email-b64-images'
 
 export default class ProposedTimeList extends React.Component {
   static displyName = "ProposedTimeList";
@@ -17,15 +18,17 @@ export default class ProposedTimeList extends React.Component {
     inEmail: false,
   }
 
-  // _renderProposalsForDay(proposalsForDay) {
-  //   return proposalsForDay.map((p) => {
-  //     return (
-  //       <div className="proposal" key={p.start}>
-  //         {this._renderProposalTimeText(p)}
-  //       </div>
-  //     )
-  //   })
-  // }
+  _renderB64Img(name) {
+    const imgStyles = {
+      width: "16px",
+      height: "16px",
+      display: "inline-block",
+      marginRight: "10px",
+      backgroundRepeat: "no-repeat",
+      backgroundImage: `url('${b64Imgs[name]}')`,
+    }
+    return <div style={imgStyles}></div>
+  }
 
   _renderHeaderInEmail() {
     const styles = {
@@ -36,9 +39,11 @@ export default class ProposedTimeList extends React.Component {
     return (
       <div>
         <h2 style={styles}>
+          {this._renderB64Img("description")}
           {((this.props.draft.events || [])[0] || {}).title || this.props.draft.subject}
         </h2>
         <span style={{margin: "0 10px"}}>
+          {this._renderB64Img("time")}
           Select a time to schedule instantly:
         </span>
       </div>
@@ -62,7 +67,7 @@ export default class ProposedTimeList extends React.Component {
     if (this.props.inEmail) {
       return {
         borderRadius: "4px",
-        border: "1px solid rgba(0,0,0,0.28)",
+        border: "1px solid rgba(0,0,0,0.15)",
         padding: "15px",
         margin: "10px 0",
         position: "relative",
@@ -79,22 +84,6 @@ export default class ProposedTimeList extends React.Component {
 
     }
   }
-
-  // _renderByDay() {
-  //   const renderedByDay = _.map(this._proposalsByDay(), (ps, dayNum) => {
-  //     const header = this._headerTextFromDay(dayNum)
-  //     return (
-  //       <div className="proposal-day" key={dayNum}>
-  //         <div className="day-header">{header}</div>
-  //         <div className="proposals">
-  //           {this._renderProposalsForDay(ps)}
-  //         </div>
-  //       </div>
-  //     )
-  //   });
-  //
-  //   return renderedByDay
-  // }
 
   _proposalsByDay() {
     return _.groupBy(this.props.proposals, (p) => {
@@ -173,7 +162,7 @@ export default class ProposedTimeList extends React.Component {
               if (this.props.inEmail) {
                 const url = `https://quickschedule.nylas.com/${proposal.id}`
                 timeText = (
-                  <a href={url}>
+                  <a href={url} style={{textDecoration: "none"}}>
                     {this._renderProposalTimeText(proposal)}
                   </a>
                 )
