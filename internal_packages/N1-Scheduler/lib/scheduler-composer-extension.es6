@@ -10,7 +10,7 @@ import {RegExpUtils, ComposerExtension} from 'nylas-exports'
 export default class SchedulerComposerExtension extends ComposerExtension {
 
   static listRegex() {
-    return new RegExp(/<proposed-time-list>[^]*<\/proposed-time-list>/)
+    return new RegExp(/<proposed-time-list>.*<\/proposed-time-list>/)
   }
 
   static _findInsertionPoint(body) {
@@ -49,7 +49,11 @@ export default class SchedulerComposerExtension extends ComposerExtension {
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
     if (metadata && metadata.proposals) {
       const el = React.createElement(ProposedTimeList,
-        {proposals: metadata.proposals});
+        {
+          draft,
+          inEmail: true,
+          proposals: metadata.proposals,
+        });
       const markup = React.renderToStaticMarkup(el);
       const nextBody = SchedulerComposerExtension._insertInBody(nextDraft.body, markup)
       nextDraft.body = nextBody;
