@@ -71,54 +71,44 @@ export default class NewEventCard extends React.Component {
     return to.concat(from).map(r => r.name).join(", ")
   }
 
-  _renderExpanded() {
-    return (
-      <span>
-        <div className="row description">
-          {this._renderIcon("ic-eventcard-notes@2x.png")}
+//   _renderExpanded() {
+//     return (
+//       <span>
+//         <div className="row description">
+//           {this._renderIcon("ic-eventcard-notes@2x.png")}
+//
+//           <textarea
+//             ref="description"
+//             name="description"
+//             placeholder="Add notes"
+//             value={this.props.event.description}
+//             onChange={ e => this.props.onChange({description: e.target.value}) }
+//           />
+//         </div>
+//
+//         <div className="row link">
+//           {this._renderIcon("ic-eventcard-link@2x.png")}
+//           <input type="text"
+//             name="description"
+//             placeholder="Add links"
+//             value={this.props.event.link}
+//             onChange={ e => this.props.onChange({link: e.target.value}) }
+//           />
+//         </div>
+//       </span>
+// )
+//   }
 
-          <textarea
-            ref="description"
-            name="description"
-            placeholder="Add notes"
-            value={this.props.event.description}
-            onChange={ e => this.props.onChange({description: e.target.value}) }
-          />
-        </div>
-
-        <div className="row link">
-          {this._renderIcon("ic-eventcard-link@2x.png")}
-          <input type="text"
-            name="description"
-            placeholder="Add links"
-            value={this.props.event.link}
-            onChange={ e => this.props.onChange({link: e.target.value}) }
-          />
-        </div>
-        <div className="row reminder">
-          {this._renderIcon("ic-eventcard-reminder@2x.png")}
-
-          <input type="text"
-            name="description"
-            placeholder="Add reminders"
-            value={this.props.event.reminders}
-            onChange={ e => this.props.onChange({reminders: e.target.value}) }
-          />
-        </div>
-      </span>
-)
-  }
-
-  _renderCollapsed() {
-    const ic = this._renderIcon("ic-eventcard-disclosure@2x.png");
-    const onClick = () => {this.setState({expanded: true})}
-    return (
-      <div className="row expand" onClick={onClick}>
-        {ic}
-        Add reminders, notes, links...
-      </div>
-    )
-  }
+  // _renderCollapsed() {
+  //   const ic = this._renderIcon("ic-eventcard-disclosure@2x.png");
+  //   const onClick = () => {this.setState({expanded: true})}
+  //   return (
+  //     <div className="row expand" onClick={onClick}>
+  //       {ic}
+  //       Add Notes, links...
+  //     </div>
+  //   )
+  // }
 
   _renderCalendarPicker() {
     if (this.state.calendars.length <= 1) {
@@ -246,7 +236,17 @@ export default class NewEventCard extends React.Component {
           />
         </div>
 
-        {this.state.expanded ? this._renderExpanded() : this._renderCollapsed()}
+        <div className="row description">
+          {this._renderIcon("ic-eventcard-notes@2x.png")}
+
+          <textarea
+            ref="description"
+            name="description"
+            placeholder="Add notes"
+            value={this.props.event.description}
+            onChange={ e => this.props.onChange({description: e.target.value}) }
+          />
+        </div>
       </div>
     )
   }
