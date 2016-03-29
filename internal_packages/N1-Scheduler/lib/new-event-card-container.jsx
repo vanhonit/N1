@@ -71,8 +71,8 @@ export default class NewEventCardContainer extends Component {
 
   _onEventChange(change, index) {
     const events = this.state.events;
-    const event = events[index].clone();
-    Object.assign({}, event, change);
+    let event = events[index].clone();
+    event = Object.assign(event, change);
     events.splice(index, 1, event);
     this._session.changes.add({events});  // triggers draft change
   }

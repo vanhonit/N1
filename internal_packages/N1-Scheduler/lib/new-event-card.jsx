@@ -183,9 +183,16 @@ export default class NewEventCard extends React.Component {
     )
   }
 
+  _onBlurTitle = (event) => {
+    this._focusedTitle = false;
+    if ((event.target.value || '').length === 0) {
+      this.props.onChange({title: this.props.draft.subject});
+    }
+  }
+
   render() {
     let title = this.props.event.title;
-    if (title == null) {
+    if ((title || '').length === 0 && !this._focusedTitle) {
       title = this.props.draft.subject;
     }
 
@@ -198,6 +205,8 @@ export default class NewEventCard extends React.Component {
             name="title"
             placeholder="Add an event title"
             value={title}
+            onFocus={() => {this._focusedTitle = true}}
+            onBlur={this._onBlurTitle}
             onChange={e => this.props.onChange({title: e.target.value}) }
           />
         </div>
