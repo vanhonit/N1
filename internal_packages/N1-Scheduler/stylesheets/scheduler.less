@@ -34,7 +34,7 @@
     }
     .row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       padding: 10px 0;
     }
     .row.title {
@@ -69,6 +69,13 @@
       padding-left: 0;
       input[type=date] {
         padding-left: 0;
+      }
+    }
+
+    .row textarea {
+      border-bottom: 1px solid #EEE;
+      &:focus {
+        box-shadow: 0 0 0;
       }
     }
 

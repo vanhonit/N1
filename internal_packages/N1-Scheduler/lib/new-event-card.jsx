@@ -35,10 +35,15 @@ export default class NewEventCard extends React.Component {
   componentDidMount() {
     this._mounted = true;
     this._loadCalendars(this.props);
+    this._updateTextarea()
   }
 
   componentWillReceiveProps(newProps) {
     this._loadCalendars(newProps);
+  }
+
+  componentDidUpdate() {
+    this._updateTextarea()
   }
 
   componentWillUnmount() {
@@ -72,7 +77,8 @@ export default class NewEventCard extends React.Component {
         <div className="row description">
           {this._renderIcon("ic-eventcard-notes@2x.png")}
 
-          <input type="text"
+          <textarea
+            ref="description"
             name="description"
             placeholder="Add notes"
             value={this.props.event.description}
@@ -188,6 +194,14 @@ export default class NewEventCard extends React.Component {
     if ((event.target.value || '').length === 0) {
       this.props.onChange({title: this.props.draft.subject});
     }
+  }
+
+  _updateTextarea() {
+    if (!this.refs.description) { return }
+    const el = React.findDOMNode(this.refs.description);
+    el.style.height = `auto`;
+    el.style.height = `${Math.max(el.scrollHeight, 67)}px`;
+    document.activeElement.scrollIntoViewIfNeeded()
   }
 
   render() {
