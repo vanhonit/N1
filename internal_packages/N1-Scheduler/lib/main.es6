@@ -5,10 +5,14 @@ import NewEventCardContainer from './new-event-card-container'
 import SchedulerComposerButton from './scheduler-composer-button';
 import SchedulerComposerExtension from './scheduler-composer-extension';
 
+import {PLUGIN_ID, PLUGIN_URL} from './scheduler-constants'
+
 import {
+  WorkspaceStore,
   ComponentRegistry,
   ExtensionRegistry,
-  WorkspaceStore} from 'nylas-exports'
+  RegisterDraftForPluginTask,
+} from 'nylas-exports'
 
 export function activate() {
   if (NylasEnv.getWindowType() === 'calendar') {
@@ -31,6 +35,15 @@ export function activate() {
       {role: 'Composer:ActionButton'});
 
     ExtensionRegistry.Composer.register(SchedulerComposerExtension)
+
+    const errorMessage = `There was a temporary problem setting up \
+these proposed times. Please manually follow up to schedule your event.`
+
+    this._usub = RegisterDraftForPluginTask.afterSendHelper({
+      errorMessage,
+      pluginId: PLUGIN_ID,
+      pluginUrl: `${PLUGIN_URL}/plugins/register-message`,
+    })
   }
 }
 
@@ -45,6 +58,7 @@ export function deactivate() {
   } else {
     ComponentRegistry.unregister(NewEventCardContainer);
     ComponentRegistry.unregister(SchedulerComposerButton);
-    ExtensionRegistry.Composer.unregister(SchedulerComposerExtension)
+    ExtensionRegistry.Composer.unregister(SchedulerComposerExtension);
+    this._usub()
   }
 }

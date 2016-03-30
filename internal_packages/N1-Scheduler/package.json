@@ -8,6 +8,10 @@
     "staging": "c5dis00do2vki9ib6hngrjs18",
     "production": "b8zturjyfg2b568czdcanxm63"
   },
+  "serverUrl": {
+    "staging": "https://scheduler-staging.nylas.com",
+    "production": "https://scheduler.nylas.com"
+  },
   "engines": {
     "nylas": ">=0.4.0"
   },
