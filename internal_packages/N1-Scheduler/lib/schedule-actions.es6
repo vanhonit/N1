@@ -3,7 +3,7 @@ import {Reflux} from 'nylas-exports'
 const ScheduleActions = Reflux.createActions([
   'confirmChoices',
   'changeDuration',
-  'removeProposal',
+  'removeProposedTime',
   'addProposedTime',
 ])
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import ScheduleActions from './schedule-actions'
 import {CALENDAR_ID} from './scheduler-constants'
 
 /**
@@ -11,13 +12,20 @@ export default class ProposedTimeEvent extends React.Component {
     event: React.PropTypes.object,
   }
 
-  _onClick() {
-    // TODO
+  _onMouseDown(event) {
+    event.stopPropagation();
+    ScheduleActions.removeProposedTime(event.target.dataset)
   }
 
   render() {
     if (this.props.event.calendarId === CALENDAR_ID) {
-      return <div className="rm-time" onClick={this._onClick}>&times;</div>
+      return (
+        <div className="rm-time"
+          data-end={event.end}
+          data-start={event.start}
+          onMouseDown={this._onMouseDown}
+        >&times;</div>
+      )
     }
     return false
   }

@@ -34,9 +34,9 @@ class ProposedTimeStore extends NylasStore {
     this._duration = this.DURATIONS[3] // 1 hr
     this.unsubscribers = [
       ScheduleActions.addProposedTime.listen(this._onPaintTime),
-      ScheduleActions.removeProposal.listen(this._onRemoveProposal),
       ScheduleActions.changeDuration.listen(this._onChangeDuration),
       ScheduleActions.confirmChoices.listen(this._onConfirmChoices),
+      ScheduleActions.removeProposedTime.listen(this._onRemoveProposedTime),
     ]
   }
 
@@ -88,8 +88,11 @@ class ProposedTimeStore extends NylasStore {
     this.trigger()
   }
 
-  _onRemoveProposal = () => {
-
+  _onRemoveProposedTime = ({start, end}) => {
+    this._proposedTimes = _.filter(this._proposedTimes, (p) => {
+      return p.unix() < start || p.unix() > end
+    })
+    this.trigger()
   }
 
   timeBlocksAsProposals() {

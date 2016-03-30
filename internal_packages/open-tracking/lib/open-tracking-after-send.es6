@@ -1,9 +1,7 @@
-import request from 'request';
-import {Actions} from 'nylas-exports';
+import {Actions, request} from 'nylas-exports';
 import {PLUGIN_ID, PLUGIN_URL} from './open-tracking-constants'
 
 export default class OpenTrackingAfterSend {
-  static post = Promise.promisify(request.post, {multiArgs: true});
 
   static afterDraftSend({message}) {
     // only run this handler in the main window
@@ -19,20 +17,20 @@ export default class OpenTrackingAfterSend {
       const data = {uid: uid, message_id: message.id};
       const serverUrl = `${PLUGIN_URL}/plugins/register-message`;
 
-      OpenTrackingAfterSend.post({
+      request.post({
         url: serverUrl,
-        body: JSON.stringify(data),
-      }).then(([response, responseBody]) => {
+        body: data,
+      }, (error, response, body) => {
         if (response.statusCode !== 200) {
-          throw new Error(`Server error ${response.statusCode} at ${serverUrl}: ${responseBody}`);
+          throw new Error(`Server error ${response.statusCode} at ${serverUrl}: ${body}`);
         }
-      }).catch(error => {
-        NylasEnv.showErrorDialog(`There was a problem saving your read receipt settings. This message will not have a read receipt. ${error.message}`);
-        // clear metadata - open tracking won't work for this message.
-        Actions.setMetadata(message, PLUGIN_ID, null);
-        Promise.reject(error);
+        if (error) {
+          NylasEnv.showErrorDialog(`There was a problem saving your \
+              read receipt settings. This message will not have a read receipt. ${error.message}`);
+          // clear metadata - open tracking won't work for this message.
+          Actions.setMetadata(message, PLUGIN_ID, null);
+        }
       });
     }
   }
 }
-

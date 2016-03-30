@@ -50,6 +50,7 @@ class NylasExports
   @load "Actions", 'flux/actions'
 
   # API Endpoints
+  @load "request", 'request' # An extend `request` module
   @load "NylasAPI", 'flux/nylas-api'
   @load "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
   @load "EdgehillAPI", 'flux/edgehill-api'
