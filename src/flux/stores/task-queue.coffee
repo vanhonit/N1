@@ -123,7 +123,10 @@ class TaskQueue
     @_dequeueObsoleteTasks(task)
     task.runLocal().then =>
       @_queue.push(task)
+      Actions.taskLocalSuccess(task)
       @_updateSoon()
+    .catch (error) ->
+      Actions.taskLocalFailed([task, error])
 
   enqueueUndoOfTaskId: (taskId) =>
     task = _.findWhere(@_queue, {id: taskId})
@@ -214,6 +217,7 @@ class TaskQueue
         task.queueState.retryAfter = Date.now() + task.queueState.retryDelay
       else
         @dequeue(task)
+      Actions.taskRemoteSuccess(task)
       @_updateSoon()
 
     .catch (err) =>
@@ -222,6 +226,8 @@ class TaskQueue
       .then (responses) =>
         @_dequeueDownstreamTasks(responses)
         @dequeue(task)
+      .then ->
+        Actions.taskRemoteFailed([task, err])
 
   # When we `_notifyOfDependentError`s, we collect a nested array of
   # responses of the tasks we notified. We need to responses to determine

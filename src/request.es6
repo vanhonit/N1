@@ -46,7 +46,7 @@ request.Request.prototype.init = function nylasRequestInit(options) {
     })
 
     let apiError;
-    if (error || resp.statusCod > 299) {
+    if (error || resp.statusCode > 299) {
       apiError = new APIError({
         error, response, body,
         requestOptions: opts,
@@ -61,14 +61,5 @@ request.Request.prototype.init = function nylasRequestInit(options) {
   this.callback = opts.callback
   return origInit.call(this, opts)
 }
-
-// const args = {multiArgs: true, context: request}
-// const nylasRequest = Promise.promisify(request, args);
-// nylasRequest.get = Promise.promisify(request.get, args);
-// nylasRequest.head = Promise.promisify(request.head, args);
-// nylasRequest.post = Promise.promisify(request.post, args);
-// nylasRequest.put = Promise.promisify(request.put, args);
-// nylasRequest.patch = Promise.promisify(request.patch, args);
-// nylasRequest.del = Promise.promisify(request.del, args);
 
 export default request

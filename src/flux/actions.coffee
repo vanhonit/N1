@@ -111,6 +111,11 @@ class Actions
   @dequeueAllTasks: ActionScopeWorkWindow
   @dequeueTask: ActionScopeWorkWindow
 
+  @taskLocalSuccess: ActionScopeGlobal
+  @taskLocalFailed: ActionScopeGlobal
+  @taskRemoteSuccess: ActionScopeGlobal
+  @taskRemoteFailed: ActionScopeGlobal
+
   ###
   Public: Dequeue a {Task} matching the description provided.
 

@@ -115,6 +115,7 @@ class NylasExports
   @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
   @require "SyncbackMetadataTask", 'flux/tasks/syncback-metadata-task'
   @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
+  @require "RegisterDraftForPluginTask", 'flux/tasks/register-draft-for-plugin-task'
 
   # Stores
   # These need to be required immediately since some Stores are
