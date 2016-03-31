@@ -1,5 +1,14 @@
-import {DraftStore, React, Event, DatabaseStore, Calendar} from 'nylas-exports'
+import React from 'react'
+import {
+  Event,
+  Calendar,
+  APIError,
+  NylasAPI,
+  DraftStore,
+  DatabaseStore,
+} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
+import {PLUGIN_ID, PLUGIN_NAME} from './scheduler-constants'
 
 export default class SchedulerComposerButton extends React.Component {
   static displayName = "SchedulerComposerButton";
@@ -51,25 +60,41 @@ export default class SchedulerComposerButton extends React.Component {
     if (!this._session) { return }
     const draft = this._session.draft()
     if (draft.events.length === 0) {  // API can only handle one event
-      DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
-      .then((allCalendars) => {
-        if (allCalendars.length === 0) {
-          throw new Error(`Can't create an event. The Account \
-${draft.accountId} has no calendars.`);
+      NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
+      .then(() => {
+        DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
+        .then((allCalendars) => {
+          if (allCalendars.length === 0) {
+            throw new Error(`Can't create an event. The Account \
+  ${draft.accountId} has no calendars.`);
+          }
+
+          const cals = allCalendars.filter(c => !c.readOnly);
+
+          if (cals.length === 0) {
+            NylasEnv.showErrorDialog(`This account has no editable \
+  calendars. We can't create an event for you. Please make sure you have an \
+  editable calendar with your account provider.`);
+            return;
+          }
+
+          // TODO Have a default calendar config
+          const event = new Event({calendarId: cals[0].id});
+          this._session.changes.add({events: [event]})
+        })
+      }).catch((error) => {
+        let title = "Error"
+        let msg = `Unfortunately scheduling is not currently available. \
+Please try again later.\n\nError: ${error}`
+        if (!(error instanceof APIError)) {
+          NylasEnv.reportError(error);
+        } else if (error.statusCode === 400) {
+          NylasEnv.reportError(error);
+        } else if (error.statusCode === NylasAPI.TimeoutErrorCode) {
+          title = "Offline"
+          msg = `Scheduling does not work offline. Please try again when you come back online.`
         }
-
-        const cals = allCalendars.filter(c => !c.readOnly);
-
-        if (cals.length === 0) {
-          NylasEnv.showErrorDialog(`This account has no editable \
-calendars. We can't create an event for you. Please make sure you have an \
-editable calendar with your account provider.`);
-          return;
-        }
-
-        // TODO Have a default calendar config
-        const event = new Event({calendarId: cals[0].id});
-        this._session.changes.add({events: [event]})
+        NylasEnv.showErrorDialog({title, message: msg});
       })
     }
   }
