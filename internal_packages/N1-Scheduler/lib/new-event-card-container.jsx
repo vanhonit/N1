@@ -1,7 +1,25 @@
 import React, {Component, PropTypes} from 'react';
 import NewEventCard from './new-event-card'
-import {DraftStore} from 'nylas-exports';
+import {PLUGIN_ID} from './scheduler-constants'
+import {Utils, Event, Actions, DraftStore} from 'nylas-exports';
+const MEETING_REQUEST = "MEETING_REQUEST"
+const PENDING_EVENT = "PENDING_EVENT"
 
+/**
+ * When you're creating an event you can either be creating:
+ *
+ * 1. A Meeting Request with a specific start and end time
+ * 2. OR a `pendingEvent` template that has a set of proposed times.
+ *
+ * The former (1) is represented by an `Event` object on the `draft.events`
+ * field of a draft.
+ *
+ * The latter (2) is represented by a `pendingEvent` key on the metadata
+ * of the `draft`.
+ *
+ * These are mutually exclusive and shouldn't exist at the same time on a
+ * draft.
+ */
 export default class NewEventCardContainer extends Component {
   static displayName = 'NewEventCardContainer';
 
@@ -12,10 +30,10 @@ export default class NewEventCardContainer extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {events: []};
+    this.state = {event: null};
     this._session = null;
     this._mounted = false;
-    this._unsubscribes = [];
+    this._usub = () => {}
   }
 
   componentDidMount() {
@@ -36,7 +54,7 @@ export default class NewEventCardContainer extends Component {
 
   componentWillUnmount() {
     this._mounted = false;
-    this._unsubscribes.forEach(s => s());
+    this._usub()
     React.findDOMNode(this).removeEventListener("keydown", this._interceptTab);
   }
 
@@ -50,54 +68,110 @@ export default class NewEventCardContainer extends Component {
       // and draftClientIds still match
       if (this._mounted) {
         this._session = session;
-        this._unsubscribes.forEach(s => s());
-        const unsub = session.listen(this._onDraftChange);
-        this._unsubscribes.push(unsub);
+        this._usub()
+        this._usub = session.listen(this._onDraftChange);
         this._onDraftChange();
       }
     });
   }
 
+  _eventType(draft) {
+    const metadata = draft.metadataForPluginId(PLUGIN_ID);
+    const hasPendingEvent = metadata && metadata.pendingEvent
+    if (draft.events && draft.events.length > 0) {
+      if (hasPendingEvent) {
+        throw new Error(`Assertion Failure. Can't have both a pendingEvent \
+and an event on a draft at the same time!`);
+      }
+      return MEETING_REQUEST
+    } else if (hasPendingEvent) {
+      return PENDING_EVENT
+    }
+    return null
+  }
+
   _onDraftChange = () => {
     const draft = this._session.draft();
+
     const to = draft.to || [];
     const from = draft.from || [];
     const participants = to.concat(from);
-    for (const event of draft.events) {
-      event.participants = participants;
+
+    let event = null;
+    const eventType = this._eventType(draft)
+
+    if (eventType === MEETING_REQUEST) {
+      event = draft.events[0]
+      this._updateDraftEvent({participants})
+    } else if (eventType === PENDING_EVENT) {
+      event = this._getPendingEvent(draft.metadataForPluginId(PLUGIN_ID))
+      this._updatePendingEvent({participants})
     }
-    this.setState({events: [].concat(draft.events || [])});
+
+    this.setState({event});
   }
 
-  _onEventChange(change, index) {
-    const events = this.state.events;
-    let event = events[index].clone();
-    event = Object.assign(event, change);
-    events.splice(index, 1, event);
-    this._session.changes.add({events});  // triggers draft change
+  _getPendingEvent(metadata) {
+    return new Event().fromJSON(metadata.pendingEvent || {})
   }
 
-  _onEventRemove(index) {
-    const events = this.state.events;
-    events.splice(index, 1);
-    this._session.changes.add({events});  // triggers draft change
+  _updateDraftEvent(newData) {
+    const draft = this._session.draft();
+    const event = Object.assign({}, draft.events[0], newData);
+    if (!Utils.isEqual(event, draft.events[0])) {
+      this._session.changes.add({events: [event]});  // triggers draft change
+    }
   }
 
-  _renderNewEventCard = (event, index) => {
-    return (
-      <NewEventCard event={event}
-        draft={this._session.draft()}
-        onRemove={() => this._onEventRemove(index)}
-        onChange={(change) => this._onEventChange(change, index)}
-        onParticipantsClick={() => {}}
-      />
-    );
+  _updatePendingEvent(newData) {
+    const draft = this._session.draft()
+    const metadata = draft.metadataForPluginId(PLUGIN_ID)
+    const pendingEvent = Object.assign({}, this._getPendingEvent(metadata), newData)
+    const pendingEventJSON = pendingEvent.toJSON()
+    if (!Utils.isEqual(pendingEventJSON, metadata.pendingEvent)) {
+      metadata.pendingEvent = pendingEventJSON;
+      Actions.setMetadata(draft, PLUGIN_ID, metadata);
+    }
+  }
+
+  _removeDraftEvent() {
+    this._session.changes.add({events: []});
+  }
+
+  _removePendingEvent() {
+    const draft = this._session.draft()
+    const metadata = draft.metadataForPluginId(PLUGIN_ID);
+    delete metadata.pendingEvent
+    Actions.setMetadata(draft, PLUGIN_ID, metadata);
+  }
+
+  _onEventChange = (newData) => {
+    const eventType = this._eventType(this._session.draft());
+    if (eventType === MEETING_REQUEST) {
+      this._updateDraftEvent(newData)
+    } else if (eventType === PENDING_EVENT) {
+      this._updatePendingEvent(newData)
+    }
+  }
+
+  _onEventRemove() {
+    const eventType = this._eventType(this._session.draft());
+    if (eventType === MEETING_REQUEST) {
+      this._removeDraftEvent()
+    } else if (eventType === PENDING_EVENT) {
+      this._removePendingEvent()
+    }
   }
 
   render() {
     return (
       <div className="new-event-card-container">
-        {this.state.events.map(this._renderNewEventCard)}
+        <NewEventCard event={this.state.event}
+          draft={this._session.draft()}
+          onRemove={this._onEventRemove}
+          onChange={this._onEventChange}
+          onParticipantsClick={() => {}}
+        />
       </div>
     )
   }

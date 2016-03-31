@@ -95,8 +95,8 @@ export default class RegisterDraftForPluginTask extends Task {
   performRemote() {
     return new Promise((resolve) => {
       request.post({url: this.pluginServerUrl, body: {
-        messageId: this.messageId,
-        draftClientId: this.draftClientId,
+        message_id: this.messageId,
+        uid: this.draftClientId,
       }}, (err) => {
         if (err instanceof APIError) {
           if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {

@@ -3,7 +3,7 @@ import NylasStore from 'nylas-store'
 import moment from 'moment'
 import Proposal from './proposal'
 import ScheduleActions from './schedule-actions'
-import {Event, Message, Actions, DatabaseStore} from 'nylas-exports'
+import {Event, Message, Actions, DraftStore, DatabaseStore} from 'nylas-exports'
 import {PLUGIN_ID, CALENDAR_ID} from './scheduler-constants'
 
 // moment-round upon require patches `moment` with new functions.
@@ -33,7 +33,7 @@ class ProposedTimeStore extends NylasStore {
     // this.triggerLater = _.throttle(this.trigger, 32)
     this._duration = this.DURATIONS[3] // 1 hr
     this.unsubscribers = [
-      ScheduleActions.addProposedTime.listen(this._onPaintTime),
+      ScheduleActions.addProposedTime.listen(this._onAddProposedTime),
       ScheduleActions.changeDuration.listen(this._onChangeDuration),
       ScheduleActions.confirmChoices.listen(this._onConfirmChoices),
       ScheduleActions.removeProposedTime.listen(this._onRemoveProposedTime),
@@ -78,7 +78,7 @@ class ProposedTimeStore extends NylasStore {
    * Gets called with a new time as the user drags their mouse across the
    * event grid. This gets called on every mouse move and mouseup.
    */
-  _onPaintTime = (newMoment) => {
+  _onAddProposedTime = (newMoment) => {
     this._proposedTimes.push(newMoment);
     this.trigger()
   }
@@ -104,20 +104,54 @@ class ProposedTimeStore extends NylasStore {
     })
   }
 
+  // This will convert the event to a pendingEvent
+  _convertToDraftEvent(draft) {
+    const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+    return DraftStore.sessionForClientId(draft.clientId).then((session) => {
+      if (metadata.pendingEvent) {
+        const event = new Event().fromJSON(metadata.pendingEvent);
+        delete metadata.pendingEvent
+        Actions.setMetadata(draft, PLUGIN_ID, metadata);
+        session.changes.add({events: [event]});
+      } else {
+        session.changes.add({events: []})
+      }
+    });
+  }
+
+  _convertToPendingEvent(draft) {
+    const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+    metadata.proposals = this.timeBlocksAsProposals();
+    if (draft.events.length > 0) {
+      return DraftStore.sessionForClientId(draft.clientId).then((session) => {
+        metadata.pendingEvent = draft.events[0].toJSON();
+        Actions.setMetadata(draft, PLUGIN_ID, metadata);
+        session.changes.add({events: []})
+      });
+    }
+    Actions.setMetadata(draft, PLUGIN_ID, metadata);
+    return Promise.resolve()
+  }
+
+
   /**
    * This will bundle up and attach the choices as metadata on the draft.
+   *
+   * Once we attach metadata to the draft, we need to make sure we clear
+   * the start and end times of the event.
    */
   _onConfirmChoices = () => {
     this._pendingSave = true;
     this.trigger();
 
-    const {draftClientId} = NylasEnv.getWindowProps()
+    const {draftClientId} = NylasEnv.getWindowProps();
 
     DatabaseStore.find(Message, draftClientId).then((draft) => {
-      let metadata = draft.metadataForPluginId(PLUGIN_ID);
-      if (!metadata) { metadata = {} }
-      metadata.proposals = this.timeBlocksAsProposals();
-      Actions.setMetadata(draft, PLUGIN_ID, metadata);
+      const proposals = this.timeBlocksAsProposals();
+      if (proposals.length === 0) {
+        return this._convertToDraftEvent(draft)
+      }
+      return this._convertToPendingEvent(draft);
     }).then(() => {
       // We need to make sure the database has persisted the metadata
       // before we close.

@@ -3,6 +3,7 @@ import moment from 'moment'
 import React from 'react'
 import {RetinaImg} from 'nylas-component-kit'
 import b64Imgs from './email-b64-images'
+import {PLUGIN_URL} from './scheduler-constants'
 
 export default class ProposedTimeList extends React.Component {
   static displyName = "ProposedTimeList";
@@ -16,6 +17,11 @@ export default class ProposedTimeList extends React.Component {
   static defaultProps = {
     draft: {},
     inEmail: false,
+  }
+
+  _proposalUrl(proposalId) {
+    const {clientId, accountId} = this.props.draft
+    return `${PLUGIN_URL}/${accountId}/${clientId}/${proposalId}`
   }
 
   _renderB64Img(name) {
@@ -160,7 +166,7 @@ export default class ProposedTimeList extends React.Component {
 
               let timeText;
               if (this.props.inEmail) {
-                const url = `https://quickschedule.nylas.com/${proposal.id}`
+                const url = this._proposalUrl(proposal.id)
                 timeText = (
                   <a href={url} style={{textDecoration: "none"}}>
                     {this._renderProposalTimeText(proposal)}
