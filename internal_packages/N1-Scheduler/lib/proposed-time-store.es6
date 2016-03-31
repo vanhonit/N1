@@ -116,6 +116,7 @@ class ProposedTimeStore extends NylasStore {
       } else {
         session.changes.add({events: []})
       }
+      return session.changes.commit()
     });
   }
 
@@ -125,8 +126,10 @@ class ProposedTimeStore extends NylasStore {
     if (draft.events.length > 0) {
       return DraftStore.sessionForClientId(draft.clientId).then((session) => {
         metadata.pendingEvent = draft.events[0].toJSON();
-        Actions.setMetadata(draft, PLUGIN_ID, metadata);
-        session.changes.add({events: []})
+        session.changes.add({events: []});
+        return session.changes.commit().then(() => {
+          Actions.setMetadata(draft, PLUGIN_ID, metadata);
+        })
       });
     }
     Actions.setMetadata(draft, PLUGIN_ID, metadata);

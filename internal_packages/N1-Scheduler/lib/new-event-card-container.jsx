@@ -93,19 +93,13 @@ and an event on a draft at the same time!`);
   _onDraftChange = () => {
     const draft = this._session.draft();
 
-    const to = draft.to || [];
-    const from = draft.from || [];
-    const participants = to.concat(from);
-
     let event = null;
     const eventType = this._eventType(draft)
 
     if (eventType === MEETING_REQUEST) {
       event = draft.events[0]
-      this._updateDraftEvent({participants})
     } else if (eventType === PENDING_EVENT) {
       event = this._getPendingEvent(draft.metadataForPluginId(PLUGIN_ID))
-      this._updatePendingEvent({participants})
     }
 
     this.setState({event});
@@ -117,16 +111,19 @@ and an event on a draft at the same time!`);
 
   _updateDraftEvent(newData) {
     const draft = this._session.draft();
-    const event = Object.assign({}, draft.events[0], newData);
+    const data = newData
+    const event = Object.assign(draft.events[0].clone(), data);
     if (!Utils.isEqual(event, draft.events[0])) {
       this._session.changes.add({events: [event]});  // triggers draft change
+      this._session.changes.commit();
     }
   }
 
   _updatePendingEvent(newData) {
+    const data = newData
     const draft = this._session.draft()
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
-    const pendingEvent = Object.assign({}, this._getPendingEvent(metadata), newData)
+    const pendingEvent = Object.assign({}, this._getPendingEvent(metadata), data)
     const pendingEventJSON = pendingEvent.toJSON()
     if (!Utils.isEqual(pendingEventJSON, metadata.pendingEvent)) {
       metadata.pendingEvent = pendingEventJSON;
@@ -136,6 +133,7 @@ and an event on a draft at the same time!`);
 
   _removeDraftEvent() {
     this._session.changes.add({events: []});
+    return this._session.changes.commit();
   }
 
   _removePendingEvent() {
@@ -154,7 +152,7 @@ and an event on a draft at the same time!`);
     }
   }
 
-  _onEventRemove() {
+  _onEventRemove = () => {
     const eventType = this._eventType(this._session.draft());
     if (eventType === MEETING_REQUEST) {
       this._removeDraftEvent()
@@ -164,14 +162,20 @@ and an event on a draft at the same time!`);
   }
 
   render() {
-    return (
-      <div className="new-event-card-container">
+    let card = false;
+    if (this._session && this.state.event) {
+      card = (
         <NewEventCard event={this.state.event}
           draft={this._session.draft()}
           onRemove={this._onEventRemove}
           onChange={this._onEventChange}
           onParticipantsClick={() => {}}
         />
+      )
+    }
+    return (
+      <div className="new-event-card-container">
+        {card}
       </div>
     )
   }

@@ -42,26 +42,35 @@ export default class SchedulerComposerButton extends React.Component {
 
   _onDraftChange() {
     const draft = this._session.draft();
-    const events = draft.events;
     this.setState({
-      enabled: events && events.length > 0,
-      accountId: draft.accountId,
-    });
-    DatabaseStore.findAll(Calendar, {
-      accountId: draft.accountId,
-    }).then((calendars) => {
-      if (this._mounted) {
-        this.setState({calendars: calendars && calendars.filter(c => !c.readOnly)})
-      }
+      enabled: draft.events && draft.events.length > 0,
     });
   }
 
   _onClick = () => {
-    const events = [].concat(this._session.draft().events);
-    if (events.length === 0) {  // API can only handle one event invite for now
-      events.push(new Event());
-      events[0].calendarId = this.state.calendars[0].serverId;
-      this._session.changes.add({events});
+    if (!this._session) { return }
+    const draft = this._session.draft()
+    if (draft.events.length === 0) {  // API can only handle one event
+      DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
+      .then((allCalendars) => {
+        if (allCalendars.length === 0) {
+          throw new Error(`Can't create an event. The Account \
+${draft.accountId} has no calendars.`);
+        }
+
+        const cals = allCalendars.filter(c => !c.readOnly);
+
+        if (cals.length === 0) {
+          NylasEnv.showErrorDialog(`This account has no editable \
+calendars. We can't create an event for you. Please make sure you have an \
+editable calendar with your account provider.`);
+          return;
+        }
+
+        // TODO Have a default calendar config
+        const event = new Event({calendarId: cals[0].id});
+        this._session.changes.add({events: [event]})
+      })
     }
   }
 

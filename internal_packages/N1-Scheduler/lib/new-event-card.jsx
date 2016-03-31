@@ -50,8 +50,13 @@ export default class NewEventCard extends React.Component {
     this._mounted = false;
   }
 
-  _loadCalendars(props) {
-    const account = AccountStore.accountForEmail(props.draft.from[0].email);
+  _loadCalendars(newProps) {
+    if (this._lastEmail === newProps.draft.from[0].email) {
+      return
+    }
+    this._lastEmail = newProps.draft.from[0].email
+
+    const account = AccountStore.accountForEmail(newProps.draft.from[0].email);
     DatabaseStore.findAll(Calendar, {accountId: account.id})
     .then((calendars) => {
       if (!this._mounted || !calendars) { return }
@@ -66,9 +71,7 @@ export default class NewEventCard extends React.Component {
   }
 
   _renderParticipants() {
-    const to = this.props.draft.to || [];
-    const from = this.props.draft.from || [];
-    return to.concat(from).map(r => r.name).join(", ")
+    return this.props.draft.participants().map(r => r.displayName()).join(", ")
   }
 
   _renderCalendarPicker() {
