@@ -90,7 +90,7 @@ Please try again later.\n\nError: ${error}`
           NylasEnv.reportError(error);
         } else if (error.statusCode === 400) {
           NylasEnv.reportError(error);
-        } else if (error.statusCode === NylasAPI.TimeoutErrorCode) {
+        } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
           title = "Offline"
           msg = `Scheduling does not work offline. Please try again when you come back online.`
         }

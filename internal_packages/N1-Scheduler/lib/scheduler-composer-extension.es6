@@ -91,7 +91,7 @@ and an event on a draft at the same time!`);
       }
       const event = self._prepareEvent(nextDraft.events[0].clone(), draft)
       nextDraft.events = [event]
-    } else if (metadata.pendingEvent) {
+    } else if (metadata && metadata.pendingEvent) {
       const event = self._prepareEvent(_.clone(metadata.pendingEvent), draft);
       metadata.pendingEvent = event;
       Actions.setMetadata(nextDraft, PLUGIN_ID, metadata);

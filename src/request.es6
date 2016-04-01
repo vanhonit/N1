@@ -2,7 +2,6 @@ import _ from 'underscore'
 import request from 'request'
 import Utils from './flux/models/utils'
 import Actions from './flux/actions'
-import NylasAPI from './flux/nylas-api'
 import {APIError} from './flux/errors'
 /**
  * A light wrapper around the `request` library to make sure we're logging
@@ -31,32 +30,43 @@ request.Request.prototype.init = function nylasRequestInit(options) {
   }
 
   opts.callback = (error, response, body) => {
-    let resp = response;
+    let statusCode;
+    let apiError;
 
-    if (!resp || !resp.statusCode) {
-      resp = resp || {}
-      resp.statusCode = NylasAPI.TimeoutErrorCode
+    if (error) {
+      if (error.code) {
+        statusCode = error.code;
+        apiError = new APIError({
+          error, response, body, statusCode,
+          requestOptions: opts,
+        });
+      } else {
+        throw error
+      }
+    } else if (response) {
+      statusCode = response.statusCode;
+      if (statusCode > 299) {
+        apiError = new APIError({
+          error, response, body, statusCode,
+          requestOptions: opts,
+        });
+      }
+    } else {
+      throw new Error("Got a request with no error and no response!")
     }
 
     Actions.didMakeAPIRequest({
       request: opts,
-      statusCode: resp.statusCode,
+      statusCode,
       error,
       requestId,
     })
 
-    let apiError;
-    if (error || resp.statusCode > 299) {
-      apiError = new APIError({
-        error, response, body,
-        requestOptions: opts,
-      });
+    if (apiError) {
       NylasEnv.errorLogger.apiDebug(apiError)
     }
 
-    const err = apiError || error
-
-    return origCallback(err, response, body)
+    return origCallback(apiError, response, body)
   }
   this.callback = opts.callback
   return origInit.call(this, opts)
