@@ -170,7 +170,7 @@ class ProposedTimeStore extends NylasStore {
     }).then(() => {
       // We need to make sure the database has persisted the metadata
       // before we close.
-      setTimeout(() => { NylasEnv.close() }, 50)
+      // setTimeout(() => { NylasEnv.close() }, 500)
     });
   }
 }

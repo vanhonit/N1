@@ -123,7 +123,7 @@ and an event on a draft at the same time!`);
     const data = newData
     const draft = this._session.draft()
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
-    const pendingEvent = Object.assign({}, this._getPendingEvent(metadata), data)
+    const pendingEvent = Object.assign(this._getPendingEvent(metadata).clone(), data)
     const pendingEventJSON = pendingEvent.toJSON()
     if (!Utils.isEqual(pendingEventJSON, metadata.pendingEvent)) {
       metadata.pendingEvent = pendingEventJSON;

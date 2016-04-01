@@ -21,8 +21,8 @@ export default class ProposedTimeEvent extends React.Component {
     if (this.props.event.calendarId === CALENDAR_ID) {
       return (
         <div className="rm-time"
-          data-end={event.end}
-          data-start={event.start}
+          data-end={this.props.event.end}
+          data-start={this.props.event.start}
           onMouseDown={this._onMouseDown}
         >&times;</div>
       )

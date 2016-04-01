@@ -21,7 +21,7 @@ export default class ProposedTimeList extends React.Component {
 
   _proposalUrl(proposalId) {
     const {clientId, accountId} = this.props.draft
-    return `${PLUGIN_URL}/${accountId}/${clientId}/${proposalId}`
+    return `${PLUGIN_URL}/scheduler/${accountId}/${clientId}/${proposalId}`
   }
 
   _renderB64Img(name) {
