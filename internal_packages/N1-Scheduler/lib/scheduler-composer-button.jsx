@@ -73,8 +73,8 @@ export default class SchedulerComposerButton extends React.Component {
 
           if (cals.length === 0) {
             NylasEnv.showErrorDialog(`This account has no editable \
-  calendars. We can't create an event for you. Please make sure you have an \
-  editable calendar with your account provider.`);
+calendars. We can't create an event for you. Please make sure you have an \
+editable calendar with your account provider.`);
             return;
           }
 

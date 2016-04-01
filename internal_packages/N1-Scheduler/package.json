@@ -9,8 +9,8 @@
     "production": "b8zturjyfg2b568czdcanxm63"
   },
   "serverUrl": {
-    "staging": "https://quickschedule-staging.nylas.com",
-    "production": "https://quickschedule.nylas.com"
+    "staging": "https://edgehill-staging.nylas.com",
+    "production": "https://edgehill.nylas.com"
   },
   "engines": {
     "nylas": ">=0.4.0"

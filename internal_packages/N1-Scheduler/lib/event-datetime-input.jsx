@@ -3,11 +3,12 @@ import moment from 'moment'
 import {Utils} from 'nylas-exports'
 
 function getDateFormat(type) {
-  switch (type) {
-    case "date": return "YYYY-MM-DD";
-    case "time": return "HH:mm:ss";
-    default: return null;
+  if (type === "date") {
+    return "YYYY-MM-DD";
+  } else if (type === "time") {
+    return "HH:mm:ss"
   }
+  return null
 }
 
 export default class EventDatetimeInput extends React.Component {

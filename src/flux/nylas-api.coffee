@@ -401,11 +401,13 @@ class NylasAPI
   # IMPORTANT: In order to auth a plugin, you must have first:
   #
   # 1. Have an application registered on developer.nylas.com
-  # 2. Have that application's API ID and API Secret registered in the
+  # 2. Have someone on the Nylas platform team mark that application as a
+  #    "plugin" by flipping a bit on Redwood.
+  # 3. Have that application's API ID and API Secret registered in the
   #    edgehill-sever config (etc/config.yaml and the corresponding prod
   #    ansible setup) under APP_IDS and APP_SECRETS respectfully. The key
   #    you use is the `appName`
-  # 3. On developer.nylas.com, you must create a callback url that points
+  # 4. On developer.nylas.com, you must create a callback url that points
   #    to: https://edgehill.nylas.com/plugins/auth/<appName> where
   #    `appName` is the heading used in the edgehill-server deploy config.
   #

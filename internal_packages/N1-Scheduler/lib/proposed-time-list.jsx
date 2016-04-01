@@ -101,6 +101,7 @@ export default class ProposedTimeList extends React.Component {
     return {
       width: "100%",
       textAlign: "center",
+      borderSpacing: "0px",
     }
   }
 
