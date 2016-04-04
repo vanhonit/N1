@@ -80,7 +80,8 @@ editable calendar with your account provider.`);
 
           // TODO Have a default calendar config
           const event = new Event({calendarId: cals[0].id});
-          this._session.changes.add({events: [event]})
+          this._session.changes.add({events: [event]});
+          this._session.changes.commit()
         })
       }).catch((error) => {
         let title = "Error"

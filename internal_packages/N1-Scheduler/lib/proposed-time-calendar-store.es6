@@ -15,7 +15,7 @@ require('moment-round')
  * The proposed times are displayed in various calendar views.
  *
  */
-class ProposedTimeStore extends NylasStore {
+class ProposedTimeCalendarStore extends NylasStore {
   DURATIONS = [
     [15, 'minutes', '15 min'],
     [30, 'minutes', '30 min'],
@@ -33,9 +33,8 @@ class ProposedTimeStore extends NylasStore {
     // this.triggerLater = _.throttle(this.trigger, 32)
     this._duration = this.DURATIONS[3] // 1 hr
     this.unsubscribers = [
-      SchedulerActions.addProposedTime.listen(this._onAddProposedTime),
       SchedulerActions.changeDuration.listen(this._onChangeDuration),
-      SchedulerActions.confirmChoices.listen(this._onConfirmChoices),
+      SchedulerActions.addProposedTime.listen(this._onAddProposedTime),
       SchedulerActions.removeProposedTime.listen(this._onRemoveProposedTime),
     ]
   }
@@ -127,9 +126,9 @@ class ProposedTimeStore extends NylasStore {
     });
   }
 
-  _convertToPendingEvent(draft) {
+  _convertToPendingEvent(draft, proposals) {
     const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
-    metadata.proposals = this.timeBlocksAsProposals();
+    metadata.proposals = proposals;
 
     // This is used to so the backend can reference which draft
     // corresponds to which sent message. The backend uses the key `uid`
@@ -155,24 +154,19 @@ class ProposedTimeStore extends NylasStore {
    * Once we attach metadata to the draft, we need to make sure we clear
    * the start and end times of the event.
    */
-  _onConfirmChoices = () => {
+  _onConfirmChoices = (proposals) => {
     this._pendingSave = true;
     this.trigger();
 
     const {draftClientId} = NylasEnv.getWindowProps();
 
     DatabaseStore.find(Message, draftClientId).then((draft) => {
-      const proposals = this.timeBlocksAsProposals();
       if (proposals.length === 0) {
         return this._convertToDraftEvent(draft)
       }
-      return this._convertToPendingEvent(draft);
-    }).then(() => {
-      // We need to make sure the database has persisted the metadata
-      // before we close.
-      // setTimeout(() => { NylasEnv.close() }, 500)
-    });
+      return this._convertToPendingEvent(draft, proposals);
+    })
   }
 }
 
-export default new ProposedTimeStore()
+export default new ProposedTimeCalendarStore()

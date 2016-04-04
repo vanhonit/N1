@@ -1,8 +1,9 @@
 import ProposedTimeEvent from './calendar/proposed-time-event'
-import ProposedTimeStore from './proposed-time-store'
 import ProposedTimePicker from './calendar/proposed-time-picker'
 import NewEventCardContainer from './composer/new-event-card-container'
 import SchedulerComposerButton from './composer/scheduler-composer-button';
+import ProposedTimeCalendarStore from './proposed-time-calendar-store'
+import ProposedTimeMainWindowStore from './proposed-time-main-window-store'
 import SchedulerComposerExtension from './composer/scheduler-composer-extension';
 
 import {PLUGIN_ID, PLUGIN_URL} from './scheduler-constants'
@@ -17,7 +18,7 @@ import {
 
 export function activate() {
   if (NylasEnv.getWindowType() === 'calendar') {
-    ProposedTimeStore.activate()
+    ProposedTimeCalendarStore.activate()
 
     NylasEnv.getCurrentWindow().setMinimumSize(480, 250)
     WorkspaceStore.defineSheet('Main', {root: true},
@@ -29,6 +30,9 @@ export function activate() {
     ComponentRegistry.register(ProposedTimePicker,
       {location: WorkspaceStore.Location.Center})
   } else {
+    if (NylasEnv.isMainWindow()) {
+      ProposedTimeMainWindowStore.activate()
+    }
     ComponentRegistry.register(NewEventCardContainer,
       {role: 'Composer:Footer'});
 
@@ -60,7 +64,8 @@ export function serialize() {
 
 export function deactivate() {
   if (NylasEnv.getWindowType() === 'calendar') {
-    ProposedTimeStore.deactivate()
+    ProposedTimeCalendarStore.deactivate()
+    ProposedTimeMainWindowStore.deactivate()
     ComponentRegistry.unregister(ProposedTimeEvent);
     ComponentRegistry.unregister(ProposedTimePicker);
   } else {

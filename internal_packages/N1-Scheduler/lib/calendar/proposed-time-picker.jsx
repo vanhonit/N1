@@ -2,7 +2,7 @@ import React from 'react'
 import {Utils} from 'nylas-exports'
 import {NylasCalendar} from 'nylas-component-kit'
 import SchedulerActions from '../scheduler-actions'
-import ProposedTimeStore from '../proposed-time-store'
+import ProposedTimeCalendarStore from '../proposed-time-calendar-store'
 import ProposedTimeCalendarDataSource from './proposed-time-calendar-data-source'
 
 /**
@@ -18,16 +18,16 @@ export default class ProposedTimePicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      duration: ProposedTimeStore.currentDuration(),
-      pendingSave: ProposedTimeStore.pendingSave(),
+      duration: ProposedTimeCalendarStore.currentDuration(),
+      pendingSave: ProposedTimeCalendarStore.pendingSave(),
     }
   }
 
   componentDidMount() {
-    this._usub = ProposedTimeStore.listen(() => {
+    this._usub = ProposedTimeCalendarStore.listen(() => {
       this.setState({
-        duration: ProposedTimeStore.currentDuration(),
-        pendingSave: ProposedTimeStore.pendingSave(),
+        duration: ProposedTimeCalendarStore.currentDuration(),
+        pendingSave: ProposedTimeCalendarStore.pendingSave(),
       });
     })
   }
@@ -52,7 +52,7 @@ export default class ProposedTimePicker extends React.Component {
   }
 
   _leftFooterComponents() {
-    const optComponents = ProposedTimeStore.DURATIONS.map((opt, i) => {
+    const optComponents = ProposedTimeCalendarStore.DURATIONS.map((opt, i) => {
       return <option value={opt.join("|")} key={i}>{opt[2]}</option>
     })
 
@@ -84,7 +84,12 @@ export default class ProposedTimePicker extends React.Component {
   }
 
   _onDone = () => {
-    SchedulerActions.confirmChoices()
+    const proposals = ProposedTimeCalendarStore.timeBlocksAsProposals();
+    // NOTE: This gets dispatched to the main window
+    const {draftClientId} = NylasEnv.getWindowProps()
+    SchedulerActions.confirmChoices({proposals, draftClientId});
+    // Make sure the action gets to the main window then close this one.
+    setTimeout(() => { NylasEnv.close() }, 10)
   }
 
   _onCalendarMouseUp({time, currentView}) {
