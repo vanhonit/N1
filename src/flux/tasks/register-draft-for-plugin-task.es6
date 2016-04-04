@@ -1,8 +1,6 @@
 import Task from './task'
 import {APIError} from '../errors'
 import NylasAPI from '../nylas-api'
-import Actions from '../actions'
-import TaskQueueStatusStore from '../stores/task-queue-status-store'
 
 // We use our local `request` so we can track the outgoing calls and
 // generate consistent error objects
@@ -53,32 +51,10 @@ import request from '../../request'
  * coresponding messageId
  */
 export default class RegisterDraftForPluginTask extends Task {
-
-  /**
-   * This is a helper that automatically listens to the send draft success
-   * method and queues a properly setup task.
-   */
-  static afterSendHelper({pluginId, pluginUrl, errorMessage}) {
-    return Actions.sendDraftSuccess.listen(({message, draftClientId}) => {
-      if (!NylasEnv.isMainWindow()) return;
-      if (message.metadataForPluginId(pluginId)) {
-        const task = new RegisterDraftForPluginTask({
-          draftClientId,
-          messageId: message.id,
-          pluginServerUrl: pluginUrl,
-        });
-        TaskQueueStatusStore.waitForPerformRemote(task).catch((error) => {
-          const msg = `${errorMessage}\n\n${error.message || ""}`
-          NylasEnv.showErrorDialog(msg)
-        })
-        Actions.queueTask(task);
-      }
-    })
-  }
-
   constructor(opts = {}) {
     super(opts)
     this.messageId = opts.messageId
+    this.errorMessage = opts.errorMessage
     this.draftClientId = opts.draftClientId
     this.pluginServerUrl = opts.pluginServerUrl
   }
@@ -99,12 +75,16 @@ export default class RegisterDraftForPluginTask extends Task {
         uid: this.draftClientId,
       }}, (err) => {
         if (err instanceof APIError) {
+          const msg = `${this.errorMessage}\n\n${err.message}`
           if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+            NylasEnv.showErrorDialog(msg, {showInMainWindow: true})
             return resolve([Task.Status.Failed, err])
           }
           return resolve(Task.Status.Retry)
         } else if (err) {
+          const msg = `${this.errorMessage}\n\n${err.message}`
           NylasEnv.reportError(err);
+          NylasEnv.showErrorDialog(msg, {showInMainWindow: true})
           return resolve([Task.Status.Failed, err])
         }
         return resolve(Task.Status.Success)

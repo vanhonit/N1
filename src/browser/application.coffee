@@ -129,6 +129,12 @@ class Application
 
     @launchWithOptions(options)
 
+  getMainNylasWindow: ->
+    @windowManager.mainWindow()
+
+  getMainWindow: ->
+    @getMainNylasWindow().browserWindow
+
   # Opens a new window based on the options provided.
   launchWithOptions: ({urlsToOpen, pathsToOpen, specMode, safeMode, specDirectory, specFilePattern, logFile, showSpecsInWindow}) ->
     if specMode

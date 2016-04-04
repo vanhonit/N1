@@ -1,4 +1,5 @@
 import {
+  Actions,
   ComponentRegistry,
   ExtensionRegistry,
   RegisterDraftForPluginTask,
@@ -20,10 +21,17 @@ export function activate() {
   const errorMessage = `There was a problem saving your link tracking \
 settings. This message will not have link tracking.`
 
-  this._usub = RegisterDraftForPluginTask.afterSendHelper({
-    errorMessage,
-    pluginId: PLUGIN_ID,
-    pluginUrl: `${PLUGIN_URL}/plugins/register-message`,
+  this._usub = Actions.sendDraftSuccess.listen(({message, draftClientId}) => {
+    if (!NylasEnv.isMainWindow()) return;
+    if (message.metadataForPluginId(PLUGIN_ID)) {
+      const task = new RegisterDraftForPluginTask({
+        errorMessage,
+        draftClientId,
+        messageId: message.id,
+        pluginServerUrl: `${PLUGIN_URL}/plugins/register-message`,
+      });
+      Actions.queueTask(task);
+    }
   })
 }
 

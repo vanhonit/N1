@@ -8,6 +8,7 @@ import SchedulerComposerExtension from './scheduler-composer-extension';
 import {PLUGIN_ID, PLUGIN_URL} from './scheduler-constants'
 
 import {
+  Actions,
   WorkspaceStore,
   ComponentRegistry,
   ExtensionRegistry,
@@ -39,10 +40,17 @@ export function activate() {
     const errorMessage = `There was a temporary problem setting up \
 these proposed times. Please manually follow up to schedule your event.`
 
-    this._usub = RegisterDraftForPluginTask.afterSendHelper({
-      errorMessage,
-      pluginId: PLUGIN_ID,
-      pluginUrl: `${PLUGIN_URL}/plugins/register-message`,
+    this._usub = Actions.sendDraftSuccess.listen(({message, draftClientId}) => {
+      if (!NylasEnv.isMainWindow()) return;
+      if (message.metadataForPluginId(PLUGIN_ID)) {
+        const task = new RegisterDraftForPluginTask({
+          errorMessage,
+          draftClientId,
+          messageId: message.id,
+          pluginServerUrl: `${PLUGIN_URL}/plugins/register-message`,
+        });
+        Actions.queueTask(task);
+      }
     })
   }
 }

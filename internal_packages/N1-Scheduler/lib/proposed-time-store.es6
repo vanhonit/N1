@@ -61,8 +61,8 @@ class ProposedTimeStore extends NylasStore {
 
   timeBlocksAsEvents() {
     const blockSize = this._duration.slice(0, 2)
-    return _.map(this.timeBlocks(), (data, start) => {
-      return new Event().fromJSON({
+    return _.map(this.timeBlocks(), (data, start) =>
+      new Event().fromJSON({
         title: "Proposed Time",
         calendar_id: CALENDAR_ID,
         when: {
@@ -71,7 +71,7 @@ class ProposedTimeStore extends NylasStore {
           end_time: moment(+start).add(blockSize[0], blockSize[1]).subtract(1, 'second').unix(),
         },
       })
-    });
+    );
   }
 
   /**
@@ -89,19 +89,19 @@ class ProposedTimeStore extends NylasStore {
   }
 
   _onRemoveProposedTime = ({start, end}) => {
-    this._proposedTimes = _.filter(this._proposedTimes, (p) => {
-      return p.unix() < start || p.unix() > end
-    })
+    this._proposedTimes = _.filter(this._proposedTimes, (p) =>
+      p.unix() < start || p.unix() > end
+    )
     this.trigger()
   }
 
   timeBlocksAsProposals() {
-    return this.timeBlocksAsEvents().map((e) => {
-      return new Proposal({
+    return this.timeBlocksAsEvents().map((e) =>
+      new Proposal({
         start: e.start,
         end: e.end,
       })
-    })
+    )
   }
 
   /**
