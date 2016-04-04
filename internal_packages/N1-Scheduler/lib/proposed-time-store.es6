@@ -2,7 +2,7 @@ import _ from 'underscore'
 import NylasStore from 'nylas-store'
 import moment from 'moment'
 import Proposal from './proposal'
-import ScheduleActions from './schedule-actions'
+import SchedulerActions from './scheduler-actions'
 import {Event, Message, Actions, DraftStore, DatabaseStore} from 'nylas-exports'
 import {PLUGIN_ID, CALENDAR_ID} from './scheduler-constants'
 
@@ -33,10 +33,10 @@ class ProposedTimeStore extends NylasStore {
     // this.triggerLater = _.throttle(this.trigger, 32)
     this._duration = this.DURATIONS[3] // 1 hr
     this.unsubscribers = [
-      ScheduleActions.addProposedTime.listen(this._onAddProposedTime),
-      ScheduleActions.changeDuration.listen(this._onChangeDuration),
-      ScheduleActions.confirmChoices.listen(this._onConfirmChoices),
-      ScheduleActions.removeProposedTime.listen(this._onRemoveProposedTime),
+      SchedulerActions.addProposedTime.listen(this._onAddProposedTime),
+      SchedulerActions.changeDuration.listen(this._onChangeDuration),
+      SchedulerActions.confirmChoices.listen(this._onConfirmChoices),
+      SchedulerActions.removeProposedTime.listen(this._onRemoveProposedTime),
     ]
   }
 

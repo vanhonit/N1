@@ -1,5 +1,5 @@
 import React from 'react'
-import ScheduleActions from '../schedule-actions'
+import SchedulerActions from '../scheduler-actions'
 import {CALENDAR_ID} from '../scheduler-constants'
 
 /**
@@ -14,7 +14,7 @@ export default class ProposedTimeEvent extends React.Component {
 
   _onMouseDown(event) {
     event.stopPropagation();
-    ScheduleActions.removeProposedTime(event.target.dataset)
+    SchedulerActions.removeProposedTime(event.target.dataset)
   }
 
   render() {

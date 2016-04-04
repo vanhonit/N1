@@ -1,7 +1,7 @@
 import React from 'react'
 import {Utils} from 'nylas-exports'
 import {NylasCalendar} from 'nylas-component-kit'
-import ScheduleActions from '../schedule-actions'
+import SchedulerActions from '../scheduler-actions'
 import ProposedTimeStore from '../proposed-time-store'
 import ProposedTimeCalendarDataSource from './proposed-time-calendar-data-source'
 
@@ -80,28 +80,28 @@ export default class ProposedTimePicker extends React.Component {
   }
 
   _onChangeDuration = (event) => {
-    ScheduleActions.changeDuration(event.target.value.split(","))
+    SchedulerActions.changeDuration(event.target.value.split(","))
   }
 
   _onDone = () => {
-    ScheduleActions.confirmChoices()
+    SchedulerActions.confirmChoices()
   }
 
   _onCalendarMouseUp({time, currentView}) {
     if (!time || currentView !== NylasCalendar.WEEK_VIEW) { return }
-    ScheduleActions.addProposedTime(time);
+    SchedulerActions.addProposedTime(time);
     return
   }
 
   _onCalendarMouseMove({time, mouseIsDown, currentView}) {
     if (!time || !mouseIsDown || currentView !== NylasCalendar.WEEK_VIEW) { return }
-    ScheduleActions.addProposedTime(time);
+    SchedulerActions.addProposedTime(time);
     return
   }
 
   _onCalendarMouseDown({time, currentView}) {
     if (!time || currentView !== NylasCalendar.WEEK_VIEW) { return }
-    ScheduleActions.addProposedTime(time);
+    SchedulerActions.addProposedTime(time);
     return
   }
 
