@@ -6,8 +6,6 @@ import b64Imgs from './email-b64-images'
 import {PLUGIN_URL} from '../scheduler-constants'
 
 export default class ProposedTimeList extends React.Component {
-  static displyName = "ProposedTimeList";
-
   static propTypes = {
     draft: React.PropTypes.object,
     inEmail: React.PropTypes.bool,
@@ -18,6 +16,8 @@ export default class ProposedTimeList extends React.Component {
     draft: {},
     inEmail: false,
   }
+
+  static displyName = "ProposedTimeList";
 
   _proposalUrl(proposalId) {
     const {clientId, accountId} = this.props.draft

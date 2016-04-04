@@ -11,10 +11,6 @@ import ProposedTimeCalendarDataSource from './proposed-time-calendar-data-source
 export default class ProposedTimePicker extends React.Component {
   static displayName = "ProposedTimePicker";
 
-  static containerStyles = {
-    height: "100%",
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -39,6 +35,10 @@ export default class ProposedTimePicker extends React.Component {
 
   componentWillUnmount() {
     this._usub()
+  }
+
+  static containerStyles = {
+    height: "100%",
   }
 
   _dataSource() {
