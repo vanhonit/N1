@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
-import {PLUGIN_ID} from './scheduler-constants'
+import {PLUGIN_ID} from '../scheduler-constants'
 import ProposedTimeList from './proposed-time-list'
 import {Actions, RegExpUtils, ComposerExtension} from 'nylas-exports'
 

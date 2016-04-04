@@ -1,6 +1,6 @@
 import React from 'react'
-import ScheduleActions from './schedule-actions'
-import {CALENDAR_ID} from './scheduler-constants'
+import ScheduleActions from '../schedule-actions'
+import {CALENDAR_ID} from '../scheduler-constants'
 
 /**
  * Gets rendered in a CalendarEvent

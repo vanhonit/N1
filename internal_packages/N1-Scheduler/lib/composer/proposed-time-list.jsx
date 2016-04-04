@@ -3,7 +3,7 @@ import moment from 'moment'
 import React from 'react'
 import {RetinaImg} from 'nylas-component-kit'
 import b64Imgs from './email-b64-images'
-import {PLUGIN_URL} from './scheduler-constants'
+import {PLUGIN_URL} from '../scheduler-constants'
 
 export default class ProposedTimeList extends React.Component {
   static displyName = "ProposedTimeList";

@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import NewEventCard from './new-event-card'
-import {PLUGIN_ID} from './scheduler-constants'
+import {PLUGIN_ID} from '../scheduler-constants'
 import {Utils, Event, Actions, DraftStore} from 'nylas-exports';
 const MEETING_REQUEST = "MEETING_REQUEST"
 const PENDING_EVENT = "PENDING_EVENT"
@@ -120,10 +120,9 @@ and an event on a draft at the same time!`);
   }
 
   _updatePendingEvent(newData) {
-    const data = newData
     const draft = this._session.draft()
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
-    const pendingEvent = Object.assign(this._getPendingEvent(metadata).clone(), data)
+    const pendingEvent = Object.assign(this._getPendingEvent(metadata).clone(), newData)
     const pendingEventJSON = pendingEvent.toJSON()
     if (!Utils.isEqual(pendingEventJSON, metadata.pendingEvent)) {
       metadata.pendingEvent = pendingEventJSON;

@@ -1,8 +1,8 @@
 import React from 'react'
 import {Utils} from 'nylas-exports'
 import {NylasCalendar} from 'nylas-component-kit'
-import ScheduleActions from './schedule-actions'
-import ProposedTimeStore from './proposed-time-store'
+import ScheduleActions from '../schedule-actions'
+import ProposedTimeStore from '../proposed-time-store'
 import ProposedTimeCalendarDataSource from './proposed-time-calendar-data-source'
 
 /**

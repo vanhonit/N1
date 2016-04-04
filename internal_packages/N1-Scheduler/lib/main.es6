@@ -1,9 +1,9 @@
-import ProposedTimeEvent from './proposed-time-event'
+import ProposedTimeEvent from './calendar/proposed-time-event'
 import ProposedTimeStore from './proposed-time-store'
-import ProposedTimePicker from './proposed-time-picker'
-import NewEventCardContainer from './new-event-card-container'
-import SchedulerComposerButton from './scheduler-composer-button';
-import SchedulerComposerExtension from './scheduler-composer-extension';
+import ProposedTimePicker from './calendar/proposed-time-picker'
+import NewEventCardContainer from './composer/new-event-card-container'
+import SchedulerComposerButton from './composer/scheduler-composer-button';
+import SchedulerComposerExtension from './composer/scheduler-composer-extension';
 
 import {PLUGIN_ID, PLUGIN_URL} from './scheduler-constants'
 

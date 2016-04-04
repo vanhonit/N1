@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment'
 import {RetinaImg} from 'nylas-component-kit'
-import {PLUGIN_ID} from './scheduler-constants'
+import {PLUGIN_ID} from '../scheduler-constants'
 
 import ProposedTimeList from './proposed-time-list'
 import EventDatetimeInput from './event-datetime-input'
@@ -34,12 +34,14 @@ export default class NewEventCard extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
-    this._loadCalendars(this.props);
+    const email = this.props.draft.from[0].email
+    this._loadCalendarsForEmail(email);
     this._updateTextarea()
   }
 
   componentWillReceiveProps(newProps) {
-    this._loadCalendars(newProps);
+    const email = newProps.draft.from[0].email
+    this._loadCalendarsForEmail(email);
   }
 
   componentDidUpdate() {
@@ -50,13 +52,13 @@ export default class NewEventCard extends React.Component {
     this._mounted = false;
   }
 
-  _loadCalendars(newProps) {
-    if (this._lastEmail === newProps.draft.from[0].email) {
+  _loadCalendarsForEmail(email) {
+    if (this._lastEmail === email) {
       return
     }
-    this._lastEmail = newProps.draft.from[0].email
+    this._lastEmail = email
 
-    const account = AccountStore.accountForEmail(newProps.draft.from[0].email);
+    const account = AccountStore.accountForEmail(email);
     DatabaseStore.findAll(Calendar, {accountId: account.id})
     .then((calendars) => {
       if (!this._mounted || !calendars) { return }

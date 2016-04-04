@@ -8,7 +8,7 @@ import {
   DatabaseStore,
 } from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import {PLUGIN_ID, PLUGIN_NAME} from './scheduler-constants'
+import {PLUGIN_ID, PLUGIN_NAME} from '../scheduler-constants'
 
 export default class SchedulerComposerButton extends React.Component {
   static displayName = "SchedulerComposerButton";
