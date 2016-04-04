@@ -4,7 +4,7 @@ import NylasAPI from '../nylas-api'
 
 // We use our local `request` so we can track the outgoing calls and
 // generate consistent error objects
-import request from '../../request'
+import nylasRequest from '../../nylas-request'
 
 /**
  * If a plugin:
@@ -70,7 +70,7 @@ export default class RegisterDraftForPluginTask extends Task {
 
   performRemote() {
     return new Promise((resolve) => {
-      request.post({url: this.pluginServerUrl, body: {
+      nylasRequest.post({url: this.pluginServerUrl, body: {
         message_id: this.messageId,
         uid: this.draftClientId,
       }}, (err) => {

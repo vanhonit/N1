@@ -1,6 +1,5 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
-Actions = require '../actions'
 NylasStore = require 'nylas-store'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
@@ -12,22 +11,25 @@ TaskQueue = require './task-queue'
 class TaskQueueStatusStore extends NylasStore
 
   constructor: ->
-    @listenTo Actions.taskLocalSuccess, (task) =>
-      @_waitingLocals[task.id]?.resolve(task)
-    @listenTo Actions.taskLocalFailed, ([task, error]) =>
-      @_waitingLocals[task.id]?.reject(error)
-    @listenTo Actions.taskRemoteSuccess, (task) =>
-      @_waitingRemotes[task.id]?.resolve(task)
-    @listenTo Actions.taskRemoteFailed, ([task, error]) =>
-      @_waitingRemotes[task.id]?.reject(error)
-
     @_queue = []
-    @_waitingLocals = {}
-    @_waitingRemotes = {}
+    @_waitingLocals = []
+    @_waitingRemotes = []
 
     query = DatabaseStore.findJSONBlob(TaskQueue.JSONBlobStorageKey)
     Rx.Observable.fromQuery(query).subscribe (json) =>
       @_queue = json || []
+      @_waitingLocals = @_waitingLocals.filter ({taskId, resolve}) =>
+        task = _.findWhere(@_queue, {id: taskId})
+        if not task or task.queueState.localComplete
+          resolve()
+          return false
+        return true
+      @_waitingRemotes = @_waitingRemotes.filter ({taskId, resolve}) =>
+        task = _.findWhere(@_queue, {id: taskId})
+        if not task
+          resolve()
+          return false
+        return true
       @trigger()
 
   queue: ->
@@ -35,19 +37,11 @@ class TaskQueueStatusStore extends NylasStore
 
   waitForPerformLocal: (task) =>
     new Promise (resolve, reject) =>
-      @_waitingLocals[task.id] = {
-        taskId: task.id,
-        resolve: resolve,
-        reject: reject,
-      }
+      @_waitingLocals.push({taskId: task.id, resolve: resolve})
 
   waitForPerformRemote: (task) =>
     new Promise (resolve, reject) =>
-      @_waitingRemotes[task.id] = {
-        taskId: task.id,
-        resolve: resolve,
-        reject: reject,
-      }
+      @_waitingRemotes.push({taskId: task.id, resolve: resolve})
 
   tasksMatching: (type, matching = {}) ->
     type = type.name unless _.isString(type)
