@@ -171,7 +171,6 @@ class Contenteditable extends React.Component
     @setInnerState editableNode: @_editableNode()
 
   componentWillUnmount: =>
-    # @_unmountOverlaidComponents()
     @_mutationObserver.disconnect()
     @_teardownNonMutationListeners()
     @_teardownEditingActionListeners()
@@ -461,11 +460,6 @@ class Contenteditable extends React.Component
     editingFunction = extension[method].bind(extension)
     @atomicEdit(editingFunction, argsObj)
 
-  # _preserveOverlaidComponents: ->
-  #   @_overlaidComponentMounts = {}
-  #   for node in @_editableNode().querySelectorAll(".n1-react-component")
-  #     @_overlaidComponentMounts[node.getAttribute('id')] = node
-
   _onOverlaidChange: =>
     overlaidRects = OverlaidComponentStore.getOverlaidComponentRects()
     if not _.isEqual(overlaidRects, @state.overlaidRects)
@@ -474,25 +468,6 @@ class Contenteditable extends React.Component
   _restoreOverlayAnchors: ->
     anchors = @_editableNode()
       .querySelectorAll(".#{OverlaidComponentStore.ANCHOR_CLASS}")
-
-    # renderedComponentsById = {}
-    # for renderedComponent in ReactDOM.findDOMNode(@refs.overlaidComponents).querySelectorAll(".#{OverlaidComponentStore.WRAP_CLASS}")
-    #   renderedComponentsById[renderedComponent.dataset.overlayId] = renderedComponent
-
-    # anchorIds = []
-    # anchorIds.push(anchor.dataset.overlayId) for anchor in anchors
-    #
-      # renderedComponent = renderedComponentsById[id]
-      # if renderedComponent
-      #   {width, height} = renderedComponent.getBoundingClientRect()
-      #   anchor.style.width = "#{width}px"
-      #   anchor.style.height = "#{height}px"
-
-    # newIds = _.difference(anchorIds, @_overlaidComponentIds)
-    # removedIds = _.difference(@_overlaidComponentIds, anchorIds)
-
-    # if Utils.sameValues(anchorIds, @state.anchorIds)
-    #   return
 
     editableRect = @_editableNode().getBoundingClientRect()
 
@@ -513,18 +488,7 @@ class Contenteditable extends React.Component
 
       anchorState[id] = {left, top}
 
-      # rect = OverlaidComponentStore.getRect(id)
-      # if rect
-      #   anchor.width = rect.width
-      #   anchor.height = rect.height
     OverlaidComponentStore.setAnchorState(anchorState)
-
-    # OverlaidComponentStore.activateOverlaidComponents(newIds)
-    # OverlaidComponentStore.deactivateOverlaidComponents(removedIds)
-
-  # _unmountOverlaidComponents: ->
-  #   for node in @_editableNode().querySelectorAll(".n1-react-component")
-  #     ReactDOM.unmountComponentAtNode(node)
 
 
   ######################################################################
