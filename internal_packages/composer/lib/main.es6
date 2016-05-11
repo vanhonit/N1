@@ -7,13 +7,13 @@ import {
   Message,
   Actions,
   DraftStore,
-  ComponentRegistry,
   WorkspaceStore,
+  ComponentRegistry,
+  InflateDraftClientId,
 } from 'nylas-exports';
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 
-import InflateDraftClientId from './decorators/inflate-draft-client-id';
 const ComposerViewForDraftClientId = InflateDraftClientId(ComposerView);
 
 class ComposerWithWindowProps extends React.Component {
