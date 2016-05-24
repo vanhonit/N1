@@ -31,7 +31,7 @@ function executeCommands(commands, done, index) {
 function printArgs(args) {
   out = "";
   for(key in args) {
-    out += "--"+key+"="+args[key]+" ";
+    out += "--"+key+"="+JSON.stringify(args[key])+" ";
   }
   return out;
 }
@@ -48,7 +48,7 @@ function makeSqlite3Command() {
 
   // Use our local version of npm (npm 3x) to build sqlite
   var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/bengotow/fts5.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/electron-v1.0-"+targetPlatform+"-"+targetArch
+  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/bengotow/fts5.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/electron-v1.1-"+targetPlatform+"-"+targetArch
 }
 
 function bootstrap() {
@@ -64,8 +64,6 @@ function bootstrap() {
   var npmFlags = ' --userconfig=' + '"' + path.resolve('.npmrc') + '" ';
 
   var gruntPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt') + '"';
-
-  var packagesToDedupe = ['fs-plus', 'humanize-plus', 'roaster', 'season', 'grim'];
 
   // use the system version of npm to install build folder dependencies, including our
   // own copy of NPM 3.x, which we'll use for subsequent commands
@@ -140,7 +138,7 @@ function bootstrap() {
   m4 += "     $ "+apmInstallCommand+"\n"
 
   m5  = "\n\n---> De-duping packages `apm dedupe`\n\n"
-  m5 += "     $ "+apmDedupeCommand+" "+packagesToDedupe.join(' ')+"\n"
+  m5 += "     $ "+apmDedupeCommand+"\n"
 
   m6  = "\n\n---> Request version `apm dedupe`\n\n"
   m6 += "     $ "+apmDedupeCommand+" request semver "+printArgs(semverOptions)+"\n"
@@ -217,7 +215,7 @@ function bootstrap() {
         message: m4
       },
       {
-        command: apmDedupeCommand + ' ' + packagesToDedupe.join(' '),
+        command: apmDedupeCommand,
         options: { env: apmEnv },
         message: m5
       },

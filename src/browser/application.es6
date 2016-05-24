@@ -5,6 +5,7 @@ import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
 import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
+import PerformanceMonitor from './performance-monitor'
 import NylasProtocolHandler from './nylas-protocol-handler';
 import ConfigPersistenceManager from './config-persistence-manager';
 
@@ -60,6 +61,7 @@ export default class Application extends EventEmitter {
     });
     this.systemTrayManager = new SystemTrayManager(process.platform, this);
     this._databasePhase = 'setup';
+    this.perf = new PerformanceMonitor()
 
     this.setupJavaScriptArguments();
     this.handleEvents();
@@ -68,6 +70,10 @@ export default class Application extends EventEmitter {
 
   getMainWindow() {
     return this.windowManager.get(WindowManager.MAIN_WINDOW).browserWindow;
+  }
+
+  isQuitting() {
+    return this.quitting;
   }
 
   temporaryInitializeDisabledPackages() {
@@ -272,6 +278,7 @@ export default class Application extends EventEmitter {
       dialog.showOpenDialog({
         title: 'Choose a Package Directory',
         defaultPath: this.configDirPath,
+        buttonLabel: 'Choose',
         properties: ['openDirectory'],
       }, (filenames) => {
         if (!filenames || filenames.length === 0) {

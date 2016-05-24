@@ -222,15 +222,19 @@ const PackagesStore = Reflux.createStore({
   _onInstallPackage: function _onInstallPackage() {
     NylasEnv.showOpenDialog({
       title: "Choose a Plugin Directory",
+      buttonLabel: 'Choose',
       properties: ['openDirectory'],
     },
     (filenames) => {
       if (!filenames || filenames.length === 0) return;
-      NylasEnv.packages.installPackageFromPath(filenames[0], (err) => {
-        if (err) return;
-        const packageName = path.basename(filenames[0]);
-        const msg = `${packageName} has been installed and enabled. No need to restart! If you don't see the plugin loaded, check the console for errors.`
-        this._displayMessage("Plugin installed! 🎉", msg);
+      NylasEnv.packages.installPackageFromPath(filenames[0], (err, packageName) => {
+        if (err) {
+          this._displayMessage("Could not install plugin", err.message);
+        } else {
+          this._onPackagesChanged();
+          const msg = `${packageName} has been installed and enabled. No need to restart! If you don't see the plugin loaded, check the console for errors.`
+          this._displayMessage("Plugin installed! 🎉", msg);
+        }
       });
     });
   },
